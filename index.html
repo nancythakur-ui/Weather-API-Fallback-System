@@ -1,0 +1,487 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WeatherNow Dashboard</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #101827;
+    color: white;
+    min-height: 100vh;
+    padding: 25px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.logo span {
+    color: #50c8ff;
+}
+
+.status {
+    color: #6ee7a8;
+    font-size: 13px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 16px;
+    border: 1px solid #344258;
+    border-radius: 12px;
+    background: #1b293d;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    min-width: 0;
+}
+
+button {
+    border: none;
+    padding: 15px 22px;
+    background: #37a9e8;
+    color: white;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+button:hover {
+    background: #168aca;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: wait;
+}
+
+.main-card {
+    background: linear-gradient(135deg, #174b77, #253c70, #493d7c);
+    border-radius: 22px;
+    padding: 35px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-height: 270px;
+}
+
+.city {
+    font-size: 27px;
+    font-weight: bold;
+}
+
+.date {
+    color: #d0e5ff;
+    margin-top: 8px;
+}
+
+.weather-icon {
+    font-size: 85px;
+    margin: 15px 0;
+}
+
+.temperature {
+    font-size: 65px;
+    font-weight: bold;
+}
+
+.condition {
+    font-size: 20px;
+    color: #d8eaff;
+    margin-top: 8px;
+}
+
+.feels {
+    color: #d8eaff;
+    margin-top: 10px;
+}
+
+.weather-details {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.detail-card {
+    background: #1b293d;
+    border: 1px solid #293a53;
+    padding: 23px 15px;
+    border-radius: 16px;
+}
+
+.detail-icon {
+    font-size: 25px;
+    margin-bottom: 15px;
+}
+
+.detail-label {
+    color: #a7b6c9;
+    font-size: 14px;
+}
+
+.detail-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 9px;
+}
+
+.bottom-info {
+    background: #1b293d;
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: #bdcce0;
+    font-size: 14px;
+}
+
+.message {
+    padding: 18px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    background: #27384e;
+    display: none;
+}
+
+.error {
+    background: #582d37;
+    color: #ffd1d1;
+}
+
+.loading {
+    opacity: .6;
+    pointer-events: none;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #8193aa;
+    font-size: 13px;
+}
+
+@media(max-width: 700px) {
+    body {
+        padding: 15px;
+    }
+
+    .main-card {
+        padding: 25px;
+    }
+
+    .temperature {
+        font-size: 52px;
+    }
+
+    .weather-icon {
+        font-size: 65px;
+    }
+
+    .weather-details {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 420px) {
+    .main-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-box button {
+        padding: 13px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+    <div class="logo">☁ Weather<span>Now</span></div>
+    <div class="status">● WEATHER API CONNECTED</div>
+</header>
+
+<div class="search-box">
+    <input
+        type="text"
+        id="cityInput"
+        placeholder="Search city... e.g. Mumbai, Delhi, London"
+        value="Mumbai"
+    >
+    <button id="searchBtn" onclick="searchWeather()">Search</button>
+    <button id="refreshBtn" onclick="searchWeather()">↻</button>
+</div>
+
+<div id="message" class="message"></div>
+
+<section class="main-card" id="mainCard">
+
+    <div>
+        <div class="city" id="city">Mumbai, India</div>
+        <div class="date" id="date">Current weather</div>
+
+        <div class="weather-icon" id="weatherIcon">☀️</div>
+
+        <div class="temperature">
+            <span id="temperature">--</span>°
+        </div>
+
+        <div class="condition" id="condition">Loading weather...</div>
+
+        <div class="feels">
+            Feels like <span id="feelsLike">--</span>°C
+        </div>
+    </div>
+
+</section>
+
+<section class="weather-details">
+
+    <div class="detail-card">
+        <div class="detail-icon">💧</div>
+        <div class="detail-label">Humidity</div>
+        <div class="detail-value" id="humidity">--%</div>
+    </div>
+
+    <div class="detail-card">
+        <div class="detail-icon">🌬️</div>
+        <div class="detail-label">Wind Speed</div>
+        <div class="detail-value" id="wind">-- km/h</div>
+    </div>
+
+    <div class="detail-card">
+        <div class="detail-icon">🌧️</div>
+        <div class="detail-label">Precipitation</div>
+        <div class="detail-value" id="rain">-- mm</div>
+    </div>
+
+    <div class="detail-card">
+        <div class="detail-icon">🌡️</div>
+        <div class="detail-label">Feels Like</div>
+        <div class="detail-value" id="feelsDetail">--°C</div>
+    </div>
+
+</section>
+
+<div class="bottom-info">
+    <div>Weather source: <strong id="source">--</strong></div>
+    <div>Last provider update: <strong id="updated">--</strong></div>
+    <div>Data status: <strong id="dataStatus">--</strong></div>
+</div>
+
+<footer>
+    WeatherNow · Powered by Open-Meteo and automatic backup providers
+</footer>
+
+</div>
+
+<script>
+
+const API_URL = "http://localhost:5000";
+
+function getIcon(condition) {
+
+    const c = (condition || "").toLowerCase();
+
+    if (c.includes("thunder")) return "⛈️";
+    if (c.includes("snow")) return "❄️";
+    if (c.includes("rain") || c.includes("drizzle")) return "🌧️";
+    if (c.includes("fog") || c.includes("mist")) return "🌫️";
+    if (c.includes("smok") || c.includes("haze")) return "🌁";
+    if (c.includes("overcast")) return "☁️";
+    if (c.includes("cloud")) return "⛅";
+    if (c.includes("clear") || c.includes("sun")) return "☀️";
+
+    return "🌤️";
+}
+
+function showMessage(text, error = false) {
+
+    const box = document.getElementById("message");
+
+    box.style.display = "block";
+    box.textContent = text;
+    box.className = error ? "message error" : "message";
+}
+
+function hideMessage() {
+    document.getElementById("message").style.display = "none";
+}
+
+function displayValue(value, suffix = "") {
+
+    if (value === null || value === undefined || value === "") {
+        return "--";
+    }
+
+    return value + suffix;
+}
+
+async function searchWeather() {
+
+    const city = document.getElementById("cityInput").value.trim();
+
+    if (!city) {
+        showMessage("Please enter a city name.", true);
+        return;
+    }
+
+    const button = document.getElementById("searchBtn");
+    const card = document.getElementById("mainCard");
+
+    button.disabled = true;
+    button.textContent = "Loading...";
+    card.classList.add("loading");
+
+    showMessage("Fetching fresh weather for " + city + "...");
+
+    try {
+
+        const url = API_URL + "/weather/" +
+            encodeURIComponent(city) + "?fresh=true";
+
+        const response = await fetch(url, {
+            method: "GET",
+            cache: "no-store"
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || result.status !== "success") {
+            throw new Error(
+                result.message || "Weather data unavailable"
+            );
+        }
+
+        const data = result.data;
+
+        if (data.stale === true) {
+            throw new Error(
+                "Weather providers unavailable. Showing old data is disabled in this dashboard."
+            );
+        }
+
+        if (data.temperature === null ||
+            data.temperature === undefined) {
+            throw new Error("Temperature data unavailable");
+        }
+
+        // MAIN WEATHER
+
+        document.getElementById("city").textContent =
+            data.city + ", " + data.country;
+
+        document.getElementById("temperature").textContent =
+            Number(data.temperature).toFixed(1);
+
+        document.getElementById("condition").textContent =
+            data.condition || "Weather unavailable";
+
+        document.getElementById("weatherIcon").textContent =
+            getIcon(data.condition);
+
+        document.getElementById("feelsLike").textContent =
+            displayValue(data.feels_like);
+
+        // DETAILS
+
+        document.getElementById("humidity").textContent =
+            displayValue(data.humidity, "%");
+
+        document.getElementById("wind").textContent =
+            displayValue(data.wind_speed, " km/h");
+
+        document.getElementById("rain").textContent =
+            displayValue(data.precipitation, " mm");
+
+        document.getElementById("feelsDetail").textContent =
+            displayValue(data.feels_like, "°C");
+
+        // SOURCE AND UPDATE
+
+        document.getElementById("source").textContent =
+            data.source || "Unknown";
+
+        document.getElementById("updated").textContent =
+            data.updated_at || "Not provided";
+
+        document.getElementById("dataStatus").textContent =
+            data.cached ? "Cached" : "Fresh";
+
+        document.getElementById("date").textContent =
+            "Weather for " + city;
+
+        hideMessage();
+
+    } catch (error) {
+
+        showMessage(error.message, true);
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "Search";
+        card.classList.remove("loading");
+
+    }
+}
+
+// ENTER KEY SEARCH
+
+document.getElementById("cityInput")
+    .addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+            searchWeather();
+        }
+
+    });
+
+// INITIAL WEATHER
+
+searchWeather();
+
+</script>
+
+</body>
+</html>
